@@ -1,0 +1,51 @@
+Swift + Objective-C + CocoaPods Testing Notes
+
+== TARGET DEPENDENCY ==
+
+Build Phases > Target Dependencies must include the Parenting app. The test
+suite requires the app executable to be present on disk; omitting this 
+setting forces the developer to build the app manually before running tests,
+which is annoying and easy to forget.
+
+Symptom(s) if absent: Failure to build tests after cleaning project. Failure
+to build tests when using a fresh Xcode install.
+
+
+== SEARCH PATHS ==
+
+Swift files under test are almost certain to directly or indirectly require 
+Objective-C pods. For the pods' headers to be found, the test target must specify
+an appropriate header search path, e.g. "Pods/Headers" (recursive)
+
+Symptom(s) if absent: Failure to import bridging header. This is because upstream,
+the preprocessor has thrown an error when trying to #import pods into the header.
+
+
+== BRIDGING HEADER ==
+
+For Pods and other files to be imported, the test target should specify a bridging
+header, e.g "Parenting/Parenting-Bridging-Header.h".
+
+Symptom(s) if absent: None; this setting should be inherited from the Parenting 
+Target Dependency. Nonetheless, its presence is helpful when debugging issues with
+Search Paths and Target Dependency, as it allows the build process to proceed
+further before failing.
+
+
+== MODULE IMPORT ==
+
+The "@testable import" statement is required to specify membership in the test
+target for all source files comprising the app. This is more convenient and reliable
+than the alternative, which is to check the "Target Membership" box for ParentingTests
+in every single file.
+See http://natashatherobot.com/swift-2-xcode-7-unit-testing-access/
+
+Symptom(s) if absent: Symbols from target module are unavailable in test files.
+
+
+== CONFIGURATION FILE ==
+ 
+In the Info tab of the project file, each entry for the test target must have a
+configuration selected.
+ 
+Symptom(s) if absent: Failure to import the first Pods header in the bridging header
